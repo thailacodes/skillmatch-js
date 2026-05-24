@@ -60,12 +60,12 @@ const empresas = [
     }
 ]
 
-// RF03 - Calcular compatibilidade 
+// RF03 - Calcular compatibilidade com cada vaga
 function calcularCompatibilidade(candidato, vaga) {
     const requisitosAtendidos = vaga.requisitos.filter(requisito => candidato.habilidades.includes(requisito)).length;
     const totalRequisitos = vaga.requisitos.length;
     const compatibilidade = (requisitosAtendidos / totalRequisitos) * 100;
-    return compatibilidade.toFixed(2);
+    return compatibilidade.toFixed(0);
 }
 
 // RF04 - Classificar compatibilidade 
@@ -90,14 +90,14 @@ function encontrarMelhorVaga(resultados) {
     });
 }
 
-// RF07 - Gerar recomendação de estudo
+// RF07 e RF08 - Gerar uma recomendação de estudo e Usar métodos de array
 function gerarRecomendacao(candidato, empresas) {
     const todasFaltantes = empresas.map(vaga => listarHabilidadesFaltantes(candidato, vaga));
     const listaUnica = [...new Set(todasFaltantes.flat())];
     
     if (listaUnica.length > 0) {
-        return "Priorize estudar " + listaUnica.join(", ") + ", pois esses conteúdos aparecem nas vagas analisadas.";
-    } else {
+        return "Priorize estudar " + listaUnica.join(", ") + ", pois esses conteúdos aparecem nos requisitos das vagas analisadas.";
+  } else {
         return "Parabéns! Você atende todos os requisitos das vagas analisadas.";
     }
 }
@@ -130,3 +130,86 @@ class VagaFrontEnd extends Vaga {
         return "Nível da vaga: " + this.nivel;
     }
 }
+
+// RF12 - Callback
+function finalizarAnalise(nomeCandidato, callback) {
+    console.log("Análise finalizada!");
+    callback(nomeCandidato);
+}
+
+function exibirMensagemFinal(ThailaCampoy) {
+    console.log(ThailaCampoy + ". Estude as habilidades que você não tem e atualize seu plano de estudo.");
+}
+
+// RF13 - Closure
+function criarContadorDeAnalises() {
+    let total = 0;
+    return function() {
+        total++;
+        return total;
+    };
+}
+
+const contarAnalise = criarContadorDeAnalises();
+
+// RF14 - Promise e async/await
+function buscarVagasSimuladas() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(empresas);
+        }, 1000);
+    });
+}
+
+async function iniciarSistema() {
+    const vagasCarregadas = await buscarVagasSimuladas();
+    console.log("Vagas carregadas!");
+    console.log(vagasCarregadas);
+}
+
+iniciarSistema();
+
+// =============================
+// EXIBIÇÃO FINAL
+// =============================
+
+const resultados = empresas.map(vaga => ({
+    empresa: vaga.nomeEmpresa,
+    cargo: vaga.cargo,
+    compatibilidade: calcularCompatibilidade(candidato, vaga),
+    habilidadesFaltantes: listarHabilidadesFaltantes(candidato, vaga)
+}));
+
+function exibirResultados() {
+    console.log("===== SKILLMATCH JS =====");
+    console.log("Candidata: " + candidato.nome);
+    console.log("=========================");
+
+    empresas.forEach(vaga => {
+        const compatibilidade = calcularCompatibilidade(candidato, vaga);
+        const classificacao = classificarCompatibilidade(parseFloat(compatibilidade));
+        const encontradas = vaga.requisitos.filter(r => candidato.habilidades.includes(r));
+        const faltantes = listarHabilidadesFaltantes(candidato, vaga);
+
+        console.log("-------------------------");
+        console.log("Empresa: " + vaga.nomeEmpresa);
+        console.log("Cargo: " + vaga.cargo);
+        console.log("Compatibilidade: " + compatibilidade + "%");
+        console.log("Habilidades encontradas: " + encontradas.join(", "));
+        console.log("Habilidades faltantes: " + (faltantes.length > 0 ? faltantes.join(", ") : "Nenhuma"));
+        console.log("Classificação: " + classificacao);
+        console.log("Análise nº: " + contarAnalise());
+    });
+
+    const melhorVaga = encontrarMelhorVaga(resultados);
+    console.log("=========================");
+    console.log("Vaga mais compatível: " + melhorVaga.empresa);
+    console.log("Cargo: " + melhorVaga.cargo);
+    console.log("Compatibilidade: " + melhorVaga.compatibilidade + "%");
+    console.log("=========================");
+    console.log(gerarRecomendacao(candidato, empresas));
+    console.log("=========================");
+    finalizarAnalise(candidato.nome, exibirMensagemFinal);
+}
+
+exibirResultados();
