@@ -1,14 +1,23 @@
-// Objeto representando o candidato e seus requisitos
+/* exemplo:
 
 const candidato = {
+    nome: "Ana",
+    area:"Front-End",
+    habilidades: ["JavaScript", "GitHub", "Lógica de Programação", "Kanban"],
+    experienciaMeses: 3
+}; */
+
+// Objeto representando o candidato e seus requisitos para a vaga de Desenvolvedor Front-End Junior
+//RF01 - Criar o perfil do candidato
+let candidato = {
     nome: "Thaila Campoy",
     area: "Desenvolvedora Front-End Junior",
     habilidades: ["JavaScript", "Css", "Html", "React", "Figma"],
     experienciaMeses: 4
 
-}
-
-// Array de objetos representando os requisitos solicitados
+};
+//RF02 - Criar uma lista de vagas.
+// Array de objetos representando os requisitos solicitados. Exemplo usado de acordo com o documento do projeto.
 
 const empresas = [
     {
@@ -51,44 +60,73 @@ const empresas = [
     }
 ]
 
-// Função para verificar se o candidato atende aos requisitos de cada vaga
+// RF03 - Calcular compatibilidade 
+function calcularCompatibilidade(candidato, vaga) {
+    const requisitosAtendidos = vaga.requisitos.filter(requisito => candidato.habilidades.includes(requisito)).length;
+    const totalRequisitos = vaga.requisitos.length;
+    const compatibilidade = (requisitosAtendidos / totalRequisitos) * 100;
+    return compatibilidade.toFixed(2);
+}
 
+// RF04 - Classificar compatibilidade 
+function classificarCompatibilidade(percentual) {
+    if (percentual >= 80) {
+        return "Alta compatibilidade";
+    } else if (percentual >= 50) {
+        return "Média compatibilidade";
+    } else {
+        return "Baixa compatibilidade";
+    }
+}
+// RF05 - Listar habilidades faltantes
+function listarHabilidadesFaltantes(candidato, vaga) {
+    return vaga.requisitos.filter(requisito => !candidato.habilidades.includes(requisito));
+}
 
-/*preciso classificar a compatibilidade do candidato com as vagas de acordo com a porcentagem de habilidades encontradas em relação aos requisitos de cada empresa. A classificação será feita da seguinte forma:
-80% a 100% - Alta Compatibilidade
-50% a 79% - Compatibilidade Média
-0% a 49% - Baixa Compatibilidade 
-*/
-
-
-function verificarCompatibilidade(candidato, empresas) {
-    empresas.forEach(empresa => {
-        const habilidadesEncontradas = candidato.habilidades.filter(habilidade => empresa.requisitos.includes(habilidade));
-        const habilidadesFaltantes = empresa.requisitos.filter(requisito => !candidato.habilidades.includes(requisito));
-        
-        const compatibilidade = (habilidadesEncontradas.length / empresa.requisitos.length) * 100;
-        let classificacao;
-
-        //If e else para classificar a compatibilidade do candidato com as vagas de acordo com a porcentagem.
-
-        if (compatibilidade >= 80) {
-            classificacao = "Alta Compatibilidade";
-        } else if (compatibilidade >= 50) {
-            classificacao = "Compatibilidade Média";
-        } else {
-            classificacao = "Baixa Compatibilidade";
-        }
-
-        // Saida no console do resultado.
-
-        console.log(`Empresa: ${empresa.nomeEmpresa}`);
-        console.log(`Cargo: ${empresa.cargo}`);
-        console.log(`Compatibilidade: ${compatibilidade.toFixed(2)}%`);
-        console.log(`Habilidades encontradas: ${habilidadesEncontradas.join(", ")}`);
-        console.log(`Habilidades faltantes: ${habilidadesFaltantes.join(", ")}`);
-        console.log(`Classificação: ${classificacao}`);
-        console.log('---');
+// RF06 - Encontrar a vaga com maior compatibilidade
+function encontrarMelhorVaga(resultados) {
+    return resultados.reduce((melhor, atual) => {
+        return parseFloat(atual.compatibilidade) > parseFloat(melhor.compatibilidade) ? atual : melhor;
     });
 }
 
-verificarCompatibilidade(candidato, empresas);
+// RF07 - Gerar recomendação de estudo
+function gerarRecomendacao(candidato, empresas) {
+    const todasFaltantes = empresas.map(vaga => listarHabilidadesFaltantes(candidato, vaga));
+    const listaUnica = [...new Set(todasFaltantes.flat())];
+    
+    if (listaUnica.length > 0) {
+        return "Priorize estudar " + listaUnica.join(", ") + ", pois esses conteúdos aparecem nas vagas analisadas.";
+    } else {
+        return "Parabéns! Você atende todos os requisitos das vagas analisadas.";
+    }
+}
+
+//RF09 - Classe
+class Vaga {
+    constructor(id, nomeEmpresa, cargo, requisitos, salario, modalidade, local) {
+        this.id = id;
+        this.nomeEmpresa = nomeEmpresa;
+        this.cargo = cargo;
+        this.requisitos = requisitos;
+        this.salario = salario;
+        this.modalidade = modalidade;
+        this.local = local;
+    }
+
+    exibirResumo() {
+        return this.cargo + " na empresa " + this.nomeEmpresa;
+    }
+}
+
+// RF10 - Herança
+class VagaFrontEnd extends Vaga {
+    constructor(id, nomeEmpresa, cargo, requisitos, salario, modalidade, local, nivel) {
+        super(id, nomeEmpresa, cargo, requisitos, salario, modalidade, local);
+        this.nivel = nivel;
+    }
+
+    exibirNivel() {
+        return "Nível da vaga: " + this.nivel;
+    }
+}
